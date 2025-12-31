@@ -26,7 +26,7 @@ Beyond technical implementation, the project places strong emphasis on verificat
 
 This repository includes the following deliverables:
 
-1. Final Report - Final report.pdf
+1. Final Report - Report- Final.pdf
 The written course report describing the project motivation, system design, workflow implementation, verification and validation process, results, and ethical analysis.
 
 2. Dashboard Output - Dashboard.html
