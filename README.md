@@ -3,10 +3,15 @@ The project explores how AI-driven workflows can be used to monitor, summarize, 
 
 The core output is an automated daily news briefing dashboard generated through an n8n workflow that collects AI-in-education news from Google News, processes and filters the data, and summarizes key trends using a large language model.
 
-##Team Members
-Alua Aldaniyaz - Asmae Nakib - Oleksii Terletskyi 
 
-###Project Overview
+**Team Members:**
+
+- Alua Aldaniyaz 
+- Asmae Nakib
+- Oleksii Terletskyi
+  
+
+**Project Overview**
 
 The goal of this project was to design and evaluate an automated system that:
 - Aggregates recent news articles about AI in education,
@@ -16,7 +21,8 @@ The goal of this project was to design and evaluate an automated system that:
 
 Beyond technical implementation, the project places strong emphasis on verification, validation, and ethical considerations, including data privacy, algorithmic bias, human oversight, and environmental sustainability.
 
-###Repository Contents / Deliverables
+
+**Repository Contents / Deliverables**
 
 This repository includes the following deliverables:
 
