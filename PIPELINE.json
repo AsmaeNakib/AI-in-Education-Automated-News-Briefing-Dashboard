@@ -1,0 +1,532 @@
+{
+  "name": "AI News",
+  "nodes": [
+    {
+      "parameters": {
+        "content": "# AI in Education – Automated Daily Briefing Dashboard\n\nThis workflow automatically collects the latest AI-in-Education news, processes and normalizes article data, summarizes trends and top stories using LLMs, and publishes a polished, interactive dashboard through a webhook.\n\n## Pipeline Overview\n1. Data Collection: Fetches AI-related news from multiple Google News RSS feeds.\n2. Pre-Processing: Cleans, filters, and restructures article metadata.\n3. Aggregation: Merges all article streams into a unified dataset.\n4. LLM Preparation: Formats and structures content for multi-article analysis.\n5. AI Summarization: Uses GPT to generate top stories, trends, insights, keywords, and a source overview.\n6. Dashboard Generation: Converts the LLM output to a stylized HTML report.\n7. Publishing: Returns the dashboard through a public webhook for live viewing.\n\n## Purpose \nCreates a centralized, auto-updated daily news intelligence tool for educators, policymakers, and researchers who need rapid insights into AI trends in education.\n",
+        "height": 592,
+        "width": 728,
+        "color": 4
+      },
+      "id": "62fc5aa1-0db2-4898-be56-da30f3cefb69",
+      "name": "Overview & Setup",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -192,
+        -32
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "content": "## Data Collection\n\nTwo Google News RSS feeds (AI Education + EdTech AI) are pulled to gather the most recent stories about artificial intelligence in educational contexts.\n\n### Purpose:\n> Ensures wide news coverage\n> Captures stories from diverse publishers\n> Provides titles, summaries, and metadata for each article\n\n\nThis step acts as the “raw information intake” of the entire system — without high-quality data sources, insights later in the pipeline would be weak or biased.",
+        "height": 368,
+        "width": 492,
+        "color": 2
+      },
+      "id": "8a81aac5-2d40-4088-95d2-1250b6a3786d",
+      "name": "Note: HN Fetch & Filter",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        720,
+        656
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "content": "## Content Cleaning & Normalization\n\nEach feed goes through JavaScript cleaning + field selection to:\n\n> Remove duplicates\n> Standardize titles, summaries, timestamps\n> Extract publisher domains\n> Filter out irrelevant or malformed articles\n\n### Purpose:\nNormalize the structure so multiple news feeds can be merged and processed identically.",
+        "height": 352,
+        "width": 484,
+        "color": 3
+      },
+      "id": "acce34c8-3223-4231-83f3-bf9ff90bb316",
+      "name": "Note: Scraping & Processing",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1680,
+        -48
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "content": "## Dataset Aggregation & Preparation for LLM\n\nBoth cleaned datasets are merged\n\nAll articles are transformed into a structured multi-article text block\n(“Article 1: Title… Summary… Link… Source…”)\n\nOutput becomes articlesText ready for summarization\n\n### Purpose:\nTo give the LLM a complete, unified “news corpus” from which to extract trends.",
+        "height": 288,
+        "width": 572,
+        "color": 5
+      },
+      "id": "d2bdac35-8c77-4bc2-9142-502952547745",
+      "name": "Note: AI Summarization",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2208,
+        640
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "content": "## AI Summarization & Trend Analysis (LLM)\n\nGPT-4o-mini receives the combined news text and returns a structured briefing:\n\n> Top Stories (5–7)\n> Trends & Patterns\n> Risks & Challenges\n> Opportunities\n> Trending Keywords\n> Source Breakdown\n\n### Purpose:\nTransform raw news into meaningful, contextualized insights.",
+        "height": 400,
+        "width": 436,
+        "color": 6
+      },
+      "id": "38275e97-3d7a-42cb-abaa-9a4493506565",
+      "name": "Note: Email Delivery",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2832,
+        -32
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "url": "https://news.google.com/rss/search?q=AI+education&hl=en&gl=US&ceid=US:en",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [
+        1024,
+        480
+      ],
+      "id": "d42056c3-6bd5-4307-a721-ea053c9d7fbc",
+      "name": "RSS – Google News AI Education"
+    },
+    {
+      "parameters": {
+        "url": "https://news.google.com/rss/search?q=edtech+AI&hl=en&gl=US&ceid=US:en",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [
+        1648,
+        352
+      ],
+      "id": "462311d5-d437-4732-a295-fb5785e002fa",
+      "name": "RSS – Google News EdTech AI"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "c8aea78f-a3ee-4cfb-bf56-4322f0b38635",
+              "name": "title",
+              "value": "={{$json[\"title\"]}}",
+              "type": "string"
+            },
+            {
+              "id": "2c807421-ef0e-474d-b5fe-64a32f52c778",
+              "name": "link",
+              "value": "={{$json[\"link\"]}}",
+              "type": "string"
+            },
+            {
+              "id": "04e0d3d5-fa87-4dfb-bf7f-06f249f55f49",
+              "name": "summary",
+              "value": "={{$json[\"contentSnippet\"] || $json[\"description\"] || $json[\"content\"]}}",
+              "type": "string"
+            },
+            {
+              "id": "9c1ee6b4-1e38-494f-a099-e7ca029b5645",
+              "name": "publishedAt",
+              "value": "={{$json[\"pubDate\"] || $json[\"isoDate\"] || $json[\"date\"]}}",
+              "type": "string"
+            },
+            {
+              "id": "774ec306-2c8e-4e78-b416-1a10731f63e7",
+              "name": "source",
+              "value": "Google News – AI Education",
+              "type": "string"
+            },
+            {
+              "id": "ae82da4c-28ab-407c-8ee4-98d58f597916",
+              "name": "Topic",
+              "value": "AI Education",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1440,
+        480
+      ],
+      "id": "a08a8c65-b283-460e-89da-8a1f54f85338",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "jsCode": "const MAX_ITEMS = 20;       // how many articles you want\nconst MIN_TITLE_LEN = 30;   // ignore super short titles\nconst MIN_DESC_LEN = 80;    // ignore super short descriptions\nconst HOURS_BACK = 24;      // only keep items from last X hours\n\nfunction isRecent(pubDate) {\n  if (!pubDate) return true;\n  const ts = Date.parse(pubDate);\n  if (isNaN(ts)) return true;\n  const cutoff = Date.now() - HOURS_BACK * 60 * 60 * 1000;\n  return ts >= cutoff;\n}\n\nconst seenLinks = new Set();\nlet filtered = [];\n\nfor (const item of items) {\n  const j = item.json;\n  const title = j.title || '';\n  const desc =\n    j.description ||\n    j.content ||\n    j['content:encoded'] ||\n    '';\n  const link = j.link || j.url || '';\n\n  // drop items with no URL\n  if (!link) continue;\n\n  // drop very short / low-info items\n  if (title.length < MIN_TITLE_LEN && desc.length < MIN_DESC_LEN) continue;\n\n  // drop old items\n  if (!isRecent(j.pubDate || j.date || j.isoDate)) continue;\n\n  // dedupe by link\n  if (seenLinks.has(link)) continue;\n  seenLinks.add(link);\n\n  filtered.push(item);\n}\n\n// Google News already ranks results.\n// Keep only the first N as \"top\" articles.\nreturn filtered.slice(0, MAX_ITEMS);"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1232,
+        480
+      ],
+      "id": "a8650ff7-d854-4c41-8afa-48bb2f7517e0",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "jsCode": "const MAX_ITEMS = 20;       // how many articles you want from this feed\nconst MIN_TITLE_LEN = 30;   // ignore super short titles\nconst MIN_DESC_LEN = 80;    // ignore super short descriptions\nconst HOURS_BACK = 24;      // only keep items from last X hours\n\nfunction isRecent(pubDate) {\n  if (!pubDate) return true;\n  const ts = Date.parse(pubDate);\n  if (isNaN(ts)) return true;\n  const cutoff = Date.now() - HOURS_BACK * 60 * 60 * 1000;\n  return ts >= cutoff;\n}\n\nconst seenLinks = new Set();\nlet filtered = [];\n\nfor (const item of items) {\n  const j = item.json;\n  const title = j.title || '';\n  const desc =\n    j.contentSnippet ||\n    j.description ||\n    j.content ||\n    j['content:encoded'] ||\n    '';\n  const link = j.link || j.url || '';\n\n  // drop items with no URL\n  if (!link) continue;\n\n  // drop very short / low-info items\n  if (title.length < MIN_TITLE_LEN && desc.length < MIN_DESC_LEN) continue;\n\n  // drop old items\n  if (!isRecent(j.pubDate || j.date || j.isoDate)) continue;\n\n  // dedupe by link\n  if (seenLinks.has(link)) continue;\n  seenLinks.add(link);\n\n  filtered.push(item);\n}\n\n// Google News already ranks results.\n// Keep only the first N as \"top\" articles.\nreturn filtered.slice(0, MAX_ITEMS);"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1856,
+        352
+      ],
+      "id": "2f5c92f3-795a-4203-a5f3-c21bc9f72f6f",
+      "name": "Code in JavaScript1"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "2a192605-2658-42a8-8fc1-4e71690583d0",
+              "name": "title",
+              "value": "={{$json[\"title\"]}}",
+              "type": "string"
+            },
+            {
+              "id": "6c460803-bc99-445a-a1c1-8fc958a9e6a5",
+              "name": "link",
+              "value": "={{$json[\"link\"]}}",
+              "type": "string"
+            },
+            {
+              "id": "e8a889e2-7984-411a-80bd-ce2412147ff2",
+              "name": "=summary",
+              "value": "={{$json[\"contentSnippet\"] || $json[\"description\"] || $json[\"content\"]}}",
+              "type": "string"
+            },
+            {
+              "id": "cee94ad7-efff-479c-b012-ffc76ed1ac52",
+              "name": "publishedAt",
+              "value": "={{$json[\"pubDate\"] || $json[\"isoDate\"] || $json[\"date\"]}}",
+              "type": "string"
+            },
+            {
+              "id": "f195d235-f6dd-40a5-8522-2c10604b5e20",
+              "name": "source",
+              "value": "Google News – EdTech AI",
+              "type": "string"
+            },
+            {
+              "id": "3dfdc4e5-a0e7-41e8-b610-67dc24c03056",
+              "name": "topic",
+              "value": "EdTech",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1984,
+        352
+      ],
+      "id": "d066e7eb-e11f-4acd-81e7-9ff39bc0bd95",
+      "name": "Edit Fields1"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        2272,
+        480
+      ],
+      "id": "7979e434-87e4-4e13-b090-da15781cf5d8",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4o",
+          "mode": "list",
+          "cachedResultName": "GPT-4O"
+        },
+        "responses": {
+          "values": [
+            {
+              "role": "system",
+              "content": "You are an expert AI analyst specializing in education technology.\nYour job is to read incoming AI-in-education news articles and produce a concise, professional daily briefing."
+            },
+            {
+              "content": "=You will receive a combined dataset of 36+ AI-in-education news articles.\n\nUsing these articles, write a structured DAILY BRIEFING following this exact shape:\n\nDaily Briefing: AI in Education\n\n1. Top Stories (5–7 items)\n- Write short headline-like summaries for the most important stories.\n- Each should have a bolded title and a one-sentence summary.\n\n2. Trends, Insights & Patterns\n- Identify recurring themes across articles.\n- Keep bullets short but insightful.\n\n3. Risks, Challenges & Concerns\n- Summarize issues raised by multiple articles.\n- Keep them actionable.\n\n4. Opportunities & Promising Practices\n- Highlight innovations, good uses of AI in education, pilots, or collaborations.\n\nAfter the 4 sections end, output two special blocks:\n\n[SOURCES]\nList “Domain | Count” for each unique news website domain you see in the dataset.\nExample:\nnytimes.com | 3\nedweek.org | 2\n\n[KEYWORDS]\nExtract 8–12 trending keywords across all articles (comma-separated, no #).\n\n---\n\nHere is the full dataset of articles you must analyze:\n\n{{ $json[\"articlesText\"] }}\n"
+            }
+          ]
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 2,
+      "position": [
+        2848,
+        416
+      ],
+      "id": "c7d1acef-e078-4d06-9b9f-1f9e7354667c",
+      "name": "Message a model",
+      "credentials": {
+        "openAiApi": {
+          "id": "49fJt224iXuqZuIt",
+          "name": "OpenAi account 4"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "path": "b24e57d8-70fd-417e-8605-b5485079e903",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        736,
+        480
+      ],
+      "id": "6c650676-8b32-4ccb-b126-92b7ebc58380",
+      "name": "Webhook",
+      "webhookId": "b24e57d8-70fd-417e-8605-b5485079e903"
+    },
+    {
+      "parameters": {
+        "jsCode": "// We assume the OpenAI node is right before this Code node\n// and we get its JSON output in items[0].json\nconst data = items[0].json;\n\n// --- Helper: recursively find the first LLM \"text\" field ---\n\nfunction findBriefing(obj) {\n  if (!obj || typeof obj !== 'object' || obj === null) return null;\n\n  if (typeof obj.text === 'string' && obj.text.trim().length > 0) {\n    return obj.text;\n  }\n\n  for (const key of Object.keys(obj)) {\n    const val = obj[key];\n\n    if (Array.isArray(val)) {\n      for (const v of val) {\n        const res = findBriefing(v);\n        if (res) return res;\n      }\n    } else if (typeof val === 'object') {\n      const res = findBriefing(val);\n      if (res) return res;\n    }\n  }\n\n  return null;\n}\n\nconst raw = findBriefing(data) || 'No briefing text found.';\n\n// --- Split raw text into: narrative + [SOURCES] + [KEYWORDS] blocks ---\n\nlet narrativeText = raw;\nlet sources = [];\nlet keywords = [];\n\n// Strip code fences like ```markdown and ```\nnarrativeText = narrativeText\n  .replace(/```markdown/gi, '')\n  .replace(/```/g, '');\n\n// Match [SOURCES] block\nconst sourcesMatch = raw.match(/\\[SOURCES\\]([\\s\\S]*?)(?:\\[KEYWORDS\\]|\\s*$)/i);\nif (sourcesMatch) {\n  const block = sourcesMatch[1]\n    .split('\\n')\n    .map(l => l.trim())\n    .filter(l => l.length > 0);\n\n  block.forEach(line => {\n    const parts = line.split('|').map(p => p.trim());\n    if (parts[0]) {\n      sources.push({\n        name: parts[0],\n        count: parts[1] || '',\n      });\n    }\n  });\n\n  // Remove the whole [SOURCES]... part from narrative\n  narrativeText = narrativeText.replace(sourcesMatch[0], '').trim();\n}\n\n// Match [KEYWORDS] block\nconst keywordsMatch = raw.match(/\\[KEYWORDS\\]([\\s\\S]*)$/i);\nif (keywordsMatch) {\n  const block = keywordsMatch[1].replace(/```/g, '').trim();\n  keywords = block\n    .split(',')\n    .map(k => k.trim())\n    .filter(k => k.length > 0);\n\n  // Remove [KEYWORDS] from narrative too\n  narrativeText = narrativeText.replace(keywordsMatch[0], '').trim();\n}\n\n// --- Convert narrative Markdown-ish text to HTML ---\n\nlet narrativeHtml = narrativeText;\n\n// **bold** -> <strong>\nnarrativeHtml = narrativeHtml.replace(/\\*\\*(.+?)\\*\\*/g, '<strong>$1</strong>');\n\n// line breaks to <br>\nnarrativeHtml = narrativeHtml\n  .replace(/\\r\\n/g, '\\n')\n  .replace(/\\n\\n/g, '<br><br>')\n  .replace(/\\n/g, '<br>');\n\n// --- Build pretty HTML page with chips, legend, sources table & keywords ---\n\nconst updatedAt = new Date();\n\nconst sourcesRowsHtml = sources.length\n  ? sources\n      .map(\n        (s) => `\n      <tr>\n        <td style=\"padding:6px 10px;border-bottom:1px solid #e5e7eb;font-size:12px;color:#111827;\">\n          ${s.name}\n        </td>\n        <td style=\"padding:6px 10px;border-bottom:1px solid #e5e7eb;font-size:12px;color:#4b5563;text-align:right;\">\n          ${s.count || '—'}\n        </td>\n      </tr>`\n      )\n      .join('')\n  : `\n      <tr>\n        <td colspan=\"2\" style=\"padding:6px 10px;font-size:12px;color:#6b7280;\">\n          No source breakdown available.\n        </td>\n      </tr>\n    `;\n\nconst keywordsChipsHtml = keywords.length\n  ? keywords\n      .map(\n        (k) => `\n      <span style=\"\n        display:inline-flex;\n        align-items:center;\n        padding:4px 10px;\n        margin:4px 6px 0 0;\n        border-radius:999px;\n        font-size:11px;\n        background:rgba(59,130,246,0.08);\n        color:#1d4ed8;\n        border:1px solid rgba(59,130,246,0.25);\n        white-space:nowrap;\n      \">\n        #${k}\n      </span>`\n      )\n      .join('')\n  : '<span style=\"font-size:12px;color:#6b7280;\">No keywords extracted.</span>';\n\nconst html = `\n<!DOCTYPE html>\n<html>\n<head>\n  <meta charset=\"utf-8\" />\n  <title>AI in Education – Daily Briefing</title>\n</head>\n<body style=\"\n  margin:0;\n  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;\n  background: linear-gradient(135deg, #0f766e 0%, #2563eb 45%, #7c3aed 100%);\n  padding: 32px 16px;\n  color:#0f172a;\n\">\n  <div style=\"\n    max-width: 1000px;\n    margin: 0 auto;\n    background: #f9fafb;\n    border-radius: 20px;\n    padding: 28px 32px 28px;\n    box-shadow: 0 22px 50px rgba(15, 23, 42, 0.40);\n  \">\n    <!-- Header -->\n    <div style=\"display:flex; justify-content:space-between; align-items:flex-start; gap:16px;\">\n      <div>\n        <div style=\"\n          display:inline-flex;\n          align-items:center;\n          gap:8px;\n          padding:4px 10px;\n          border-radius:999px;\n          background:rgba(37,99,235,0.08);\n          color:#1d4ed8;\n          font-size:11px;\n          text-transform:uppercase;\n          letter-spacing:0.09em;\n          font-weight:600;\n        \">\n          <span style=\"\n            width:6px;height:6px;border-radius:999px;\n            background:#22c55e;display:inline-block;\n          \"></span>\n          Live AI in Education Monitor\n        </div>\n\n        <h1 style=\"margin:10px 0 4px;font-size:26px;\">\n          AI in Education – Daily Briefing\n        </h1>\n        <p style=\"margin:0;color:#6b7280;font-size:13px;\">\n          Generated automatically by an n8n workflow that collects AI-in-education news\n          from Google News, filters it, and summarizes key trends using OpenAI.\n        </p>\n      </div>\n\n      <div style=\"text-align:right;font-size:11px;color:#6b7280;\">\n        <div style=\"font-weight:600;color:#4b5563;\">Status</div>\n        <div style=\"\n          display:inline-flex;\n          align-items:center;\n          gap:6px;\n          margin-top:4px;\n          padding:2px 10px;\n          border-radius:999px;\n          background:#ecfdf3;\n          color:#16a34a;\n          font-weight:600;\n        \">\n          <span style=\"\n            width:8px;height:8px;border-radius:999px;\n            background:#22c55e;display:inline-block;\n          \"></span>\n          Auto-generated today\n        </div>\n        <div style=\"margin-top:8px;font-size:11px;color:#9ca3af;\">\n          Updated ${updatedAt.toLocaleString()}\n        </div>\n      </div>\n    </div>\n\n    <hr style=\"border:none;border-top:1px solid #e5e7eb;margin:20px 0 18px;\" />\n\n    <!-- Main layout -->\n    <div style=\"display:grid;grid-template-columns:minmax(0,2.3fr) minmax(0,1.1fr);gap:24px;\">\n      <!-- Main narrative / story cards -->\n      <div style=\"\n        background:#ffffff;\n        border-radius:16px;\n        padding:18px 20px 20px;\n        border:1px solid #e5e7eb;\n      \">\n        <h2 style=\"margin-top:0;margin-bottom:10px;font-size:16px;color:#111827;\">\n          <span style=\"\n            display:inline-flex;\n            align-items:center;\n            gap:8px;\n          \">\n            <span style=\"\n              width:20px;height:20px;border-radius:7px;\n              background:linear-gradient(135deg,#2563eb,#7c3aed);\n              display:inline-flex;align-items:center;justify-content:center;\n              font-size:11px;color:white;font-weight:700;\n            \">AI</span>\n            Daily Narrative &amp; Key Insights\n          </span>\n        </h2>\n        <div style=\"font-size:14px;line-height:1.6;color:#111827;\">\n          ${narrativeHtml}\n        </div>\n      </div>\n\n      <!-- Right column: legend + keywords -->\n      <div style=\"display:flex;flex-direction:column;gap:12px;\">\n        <div style=\"\n          background:#eef2ff;\n          border-radius:14px;\n          padding:14px 14px 12px;\n          border:1px solid #e0e7ff;\n          font-size:12px;\n          color:#3730a3;\n        \">\n          <div style=\"font-weight:700;font-size:12px;margin-bottom:6px;\">\n            How to read this dashboard\n          </div>\n          <ul style=\"margin:0 0 0 18px;padding:0;line-height:1.5;\">\n            <li><strong>Top Stories</strong> act like front-page headlines for AI in education.</li>\n            <li><strong>Trends</strong> show patterns across multiple articles.</li>\n            <li>Use the risks &amp; opportunities as talking points in class or meetings.</li>\n          </ul>\n        </div>\n\n        <div style=\"\n          background:#ecfeff;\n          border-radius:14px;\n          padding:12px 14px;\n          border:1px solid #cffafe;\n          font-size:12px;\n          color:#0f766e;\n        \">\n          <div style=\"font-weight:700;font-size:12px;margin-bottom:4px;\">\n            Trending keywords\n          </div>\n          <div style=\"margin-top:4px;\">\n            ${keywordsChipsHtml}\n          </div>\n        </div>\n\n        <div style=\"\n          background:#fef3c7;\n          border-radius:14px;\n          padding:12px 14px;\n          border:1px solid #fde68a;\n          font-size:12px;\n          color:#92400e;\n        \">\n          <div style=\"font-weight:700;font-size:12px;margin-bottom:4px;\">\n            Color legend\n          </div>\n          <ul style=\"margin:0 0 0 18px;padding:0;line-height:1.5;\">\n            <li><strong>Blue cards</strong> – Narrative &amp; analysis.</li>\n            <li><strong>Teal chips</strong> – Emerging themes &amp; topics.</li>\n            <li><strong>Yellow notes</strong> – How to interpret the dashboard.</li>\n          </ul>\n        </div>\n      </div>\n    </div>\n\n    <!-- Sources table -->\n    <div style=\"\n      margin-top:20px;\n      background:#ffffff;\n      border-radius:16px;\n      padding:14px 18px 16px;\n      border:1px solid #e5e7eb;\n    \">\n      <div style=\"display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;\">\n        <h3 style=\"margin:0;font-size:14px;color:#111827;\">\n          News feeds monitored\n        </h3>\n        <span style=\"font-size:11px;color:#9ca3af;\">\n          Current Google News queries powering this dashboard\n        </span>\n      </div>\n      <table width=\"100%\" cellspacing=\"0\" cellpadding=\"0\" style=\"border-collapse:collapse;\">\n        <thead>\n          <tr>\n            <th style=\"text-align:left;padding:6px 10px;font-size:11px;color:#6b7280;border-bottom:1px solid #e5e7eb;\">\n              Source\n            </th>\n            <th style=\"text-align:right;padding:6px 10px;font-size:11px;color:#6b7280;border-bottom:1px solid #e5e7eb;\">\n              # Articles\n            </th>\n          </tr>\n        </thead>\n        <tbody>\n          ${sourcesRowsHtml}\n        </tbody>\n      </table>\n    </div>\n  </div>\n</body>\n</html>\n`;\n\n// --- RETURN AS BINARY HTML FOR RESPOND TO WEBHOOK ---\n\nconst base64 = Buffer.from(html, 'utf8').toString('base64');\n\nreturn [\n  {\n    json: {},\n    binary: {\n      data: {\n        data: base64,\n        mimeType: 'text/html',\n      },\n    },\n  },\n];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3296,
+        416
+      ],
+      "id": "7666877e-0379-4baf-bd95-2087918ae9e6",
+      "name": "Code in JavaScript2"
+    },
+    {
+      "parameters": {
+        "respondWith": "binary",
+        "responseDataSource": "set",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        3504,
+        416
+      ],
+      "id": "df6791b2-4766-44d6-889e-31ec4e86d791",
+      "name": "Respond to Webhook"
+    },
+    {
+      "parameters": {
+        "jsCode": "// We get many items, each representing one article.\n// We want to combine them into ONE item with a big text field.\n\nconst articles = items.map((item, index) => {\n  const j = item.json;\n  return `Article ${index + 1}:\nTitle: ${j.title || ''}\nSource: ${j.source || ''}\nPublished: ${j.publishedAt || j.pubDate || ''}\nSummary: ${j.summary || j.contentSnippet || ''}\nLink: ${j.link || ''}`;\n});\n\nconst articlesText = articles.join('\\n\\n');\n\n// Return a SINGLE item that contains the combined articles text\nreturn [\n  {\n    json: {\n      articlesText,\n    },\n  },\n];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2560,
+        448
+      ],
+      "id": "e3df37ab-8d0d-433f-8054-0f5ba5704e85",
+      "name": "Prepare LLM input"
+    },
+    {
+      "parameters": {
+        "content": "## Dashboard Generation & Delivery\n\n> LLM output is parsed\n> A fully styled HTML dashboard is generated\n> Keyword chips, colored cards, source tables, timestamps, and formatting are applied\n> Webhook returns the HTML dashboard as a live web page\n\n### Purpose:\nProduce a user-facing “AI in Education Daily Briefing” website.",
+        "height": 272,
+        "width": 468
+      },
+      "id": "cb1dcc3c-07ce-48ec-b795-cd8034353437",
+      "name": "Note: Email Delivery1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        3440,
+        624
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.toolCode",
+      "typeVersion": 1.3,
+      "position": [
+        2992,
+        560
+      ],
+      "id": "b5f79da7-5a6e-4b46-bac4-4cecf00c276e",
+      "name": "Code Tool"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "RSS – Google News AI Education": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "RSS – Google News EdTech AI": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "RSS – Google News EdTech AI",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript1": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields1": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Prepare LLM input",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Message a model": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "RSS – Google News AI Education",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript2": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare LLM input": {
+      "main": [
+        [
+          {
+            "node": "Message a model",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code Tool": {
+      "ai_tool": [
+        [
+          {
+            "node": "Message a model",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "46b472aa-e2f4-4277-91f7-8c6b0d082f58",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "e65b8d72b4ae29ce620b257f1fd99b20cd523ecf5f39c732482f6a9c4b864d54"
+  },
+  "id": "mxwYKphe25x45NTj",
+  "tags": []
+}
